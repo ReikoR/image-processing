@@ -3,14 +3,19 @@ $(window).load(function () {
         resizedCanvas = $('#resize')[0],
         context = canvas.getContext('2d'),
         $sourceImage = $('#source-image'),
-        $resizedImage = $('#resized-image');
+        $resizedImage2 = $('#resized-image-2'),
+        $resizedImage3 = $('#resized-image-3');
 
-    $('img').one('load', function() {
+    $sourceImage.one('load', function() {
         canvas.width = $sourceImage.width();
         canvas.height = $sourceImage.height();
         context.drawImage($sourceImage[0], 0, 0);
+
         resize(canvas, resizedCanvas, canvas.width * 2, canvas.height * 2);
-        $resizedImage[0].src = resizedCanvas.toDataURL();
+        $resizedImage2[0].src = resizedCanvas.toDataURL();
+
+        resize(canvas, resizedCanvas, canvas.width * 3, canvas.height * 3);
+        $resizedImage3[0].src = resizedCanvas.toDataURL();
     }).each(function() {
         if(this.complete) $(this).load();
     });
@@ -21,14 +26,16 @@ function resize (sourceCanvas, resultCanvas, width, height) {
     height = Math.round(height);
     resultCanvas.width = width;
     resultCanvas.height = height;
-    console.log(resultCanvas.width, resultCanvas.height);
+
     var sourceContext = sourceCanvas.getContext('2d'),
         resultContext = resultCanvas.getContext('2d'),
         sourceData = sourceContext.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height),
         result = resultContext.createImageData(width, height),
-        xScale = sourceCanvas.width / width,
-        yScale = sourceCanvas.height / height,
+        xScale = (sourceCanvas.width - 1) / (width - 1), //use coordinate range 0 ... width - 1
+        yScale = (sourceCanvas.height - 1) / (height - 1),
         x, y, newPixel, pixelCoord;
+
+    //since the image data is in RGBA format we use every fourth (R) value for grayscale image
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
             newPixel = bilinearSample(sourceData.data, x * xScale, y * yScale, 0, sourceCanvas.width);
