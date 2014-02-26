@@ -1,0 +1,14 @@
+#source,
+#output {
+    display: none;
+}
+
+.plot {
+    width: 400px;
+    height: 250px;
+}
+
+.image,
+.plot {
+    display: inline-block;
+}
