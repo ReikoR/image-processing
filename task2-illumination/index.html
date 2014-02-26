@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>Illumination</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <h1>Original image</h1>
+    <img id="source-image" class="image" src="img/moon-craters-250.png">
+    <div id="plot" class="plot"></div>
+
+    <h1>Power transformation</h1>
+    <img id="output-image1" class="image">
+    <div id="plot1" class="plot"></div>
+
+    <h1>Root transformation</h1>
+    <img id="output-image2" class="image">
+    <div id="plot2" class="plot"></div>
+
+    <!--<h1>Log transformation</h1>
+    <img id="output-image3" class="image">
+    <div id="plot3" class="plot"></div>
+
+    <h1>Inverse log transformation</h1>
+    <img id="output-image4" class="image">
+    <div id="plot4" class="plot"></div>-->
+
+    <h1>Histogram equalization</h1>
+    <img id="output-image5" class="image">
+    <div id="plot5" class="plot"></div>
+
+    <h1>Singular Value Equalization</h1>
+    <img id="output-image6" class="image">
+    <div id="plot6" class="plot"></div>
+
+    <!--<h1>Your own method for stretching the histogram of the luminance</h1>
+    <img id="output-image7" class="image">
+    <div id="plot7" class="plot1"></div>-->
+
+    <canvas id="source" width="100" height="100"></canvas>
+    <canvas id="output" width="100" height="100"></canvas>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="../js/flot/jquery.flot.js"></script>
+    <script src="../js/numeric-1.2.6.js"></script>
+    <script src="../js/pixastic/pixastic.core.js"></script>
+    <script src="../js/pixastic/actions/histogram.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
