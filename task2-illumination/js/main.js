@@ -29,7 +29,16 @@ $(window).load(function () {
         $('#output-image2')[0].src = outputCanvas.toDataURL();
 
         //Log transformation
+        imageLogarithmicCorrection(canvas, outputCanvas);
+        Pixastic.process(outputCanvas, 'histogram', {returnValue: sourceHistogram});
+        plotHistogram($('#plot3'), sourceHistogram.values);
+        $('#output-image3')[0].src = outputCanvas.toDataURL();
+
         //Inverse log transformation
+        imageInverseLogarithmicCorrection(canvas, outputCanvas);
+        Pixastic.process(outputCanvas, 'histogram', {returnValue: sourceHistogram});
+        plotHistogram($('#plot4'), sourceHistogram.values);
+        $('#output-image4')[0].src = outputCanvas.toDataURL();
 
         //Histogram equalization
         imageHistogramEqualization(canvas, outputCanvas);
@@ -47,6 +56,11 @@ $(window).load(function () {
         $('#output-image6')[0].src = outputCanvas.toDataURL();
 
         //Your own method for stretching the histogram of the luminance
+        //Simple histogram stretching
+        imageSimpleCorrection(canvas, outputCanvas, 1.5);
+        Pixastic.process(outputCanvas, 'histogram', {returnValue: sourceHistogram});
+        plotHistogram($('#plot7'), sourceHistogram.values);
+        $('#output-image7')[0].src = outputCanvas.toDataURL();
 
     }).each(function() {
         if(this.complete) $(this).load();
@@ -55,8 +69,6 @@ $(window).load(function () {
 
 /**
  * Apply singular value equalization on the image
- * @param sourceCanvas
- * @param resultCanvas
  */
 function sve(sourceCanvas, resultCanvas) {
     resultCanvas.width = sourceCanvas.width;
@@ -88,8 +100,6 @@ function sve(sourceCanvas, resultCanvas) {
 
 /**
  * Apply histogram equalization on the image
- * @param sourceCanvas
- * @param resultCanvas
  */
 function imageHistogramEqualization(sourceCanvas, resultCanvas) {
     //get original image histogram
@@ -107,9 +117,6 @@ function imageHistogramEqualization(sourceCanvas, resultCanvas) {
 
 /**
  * Apply gamma correction on the image
- * @param sourceCanvas
- * @param resultCanvas
- * @param gamma
  */
 function imageGammaCorrection(sourceCanvas, resultCanvas, gamma) {
     var matrixData = getImageMatrix(sourceCanvas);
@@ -122,10 +129,59 @@ function imageGammaCorrection(sourceCanvas, resultCanvas, gamma) {
 }
 
 /**
+ * Apply logarithmic correction on the image
+ */
+function imageLogarithmicCorrection(sourceCanvas, resultCanvas) {
+    var matrixData = getImageMatrix(sourceCanvas);
+
+    var logCorrectedMatrix = logCorrection(matrixData);
+
+    drawImageFromMatrix(logCorrectedMatrix, resultCanvas);
+}
+
+/**
+ * Apply inverse logarithmic correction on the image
+ */
+function imageInverseLogarithmicCorrection(sourceCanvas, resultCanvas) {
+    var matrixData = getImageMatrix(sourceCanvas);
+
+    var inverseLogCorrectedMatrix = inverseLogCorrection(matrixData);
+
+    drawImageFromMatrix(inverseLogCorrectedMatrix, resultCanvas);
+}
+
+/**
+ * Apply simple histogram stretching correction to the image
+ */
+function imageSimpleCorrection(sourceCanvas, resultCanvas) {
+    var matrixData = getImageMatrix(sourceCanvas);
+
+    var min = matrixMin(matrixData),
+        max = matrixMax(matrixData),
+        scale = 255 / (max - min);
+
+    console.log('min', min);
+    console.log('max', max);
+
+    if (min > 0) {
+        //subtract min from matrix elements to move histogram to left
+        matrixData = numeric.sub(matrixData, min);
+    }
+
+    if (scale !== 1) {
+        //multiply matrix values by scale to stretch histogram to right
+        matrixData = numeric.mul(matrixData, scale);
+    }
+
+    console.log('newMin', matrixMin(matrixData));
+    console.log('newMax', matrixMax(matrixData));
+
+    //scale matrix values back to [0, 255] and draw image
+    drawImageFromMatrix(matrixData, resultCanvas);
+}
+
+/**
  * Draw image by replacing source image pixel values
- * @param newPixelValues
- * @param sourceCanvas
- * @param resultCanvas
  */
 function drawImageFromPixelValues(newPixelValues, sourceCanvas, resultCanvas) {
     var width = sourceCanvas.width,
@@ -155,10 +211,7 @@ function drawImageFromPixelValues(newPixelValues, sourceCanvas, resultCanvas) {
 }
 
 /**
- * Apply gamma correction to image matrix
- * @param matrixData
- * @param gamma
- * @returns {Array}
+ * Apply gamma correction on image matrix
  */
 
 function gammaCorrection(matrixData, gamma) {
@@ -174,9 +227,77 @@ function gammaCorrection(matrixData, gamma) {
 }
 
 /**
+ * Apply log transformation on image matrix
+ */
+function logCorrection(matrixData) {
+    var x, y,
+        result = [],
+        constant = 255 / Math.log(256);
+    for (y = 0; y < matrixData.length; y++) {
+        result[y] = [];
+        for (x = 0; x < matrixData[0].length; x++) {
+            result[y][x] = constant *  Math.log(1 + matrixData[y][x]);
+        }
+    }
+    return result;
+}
+
+/**
+ * Apply inverse log transformation on image matrix
+ */
+function inverseLogCorrection(matrixData) {
+    var x, y,
+        result = [],
+        constant = 255 / Math.log(256);
+    for (y = 0; y < matrixData.length; y++) {
+        result[y] = [];
+        for (x = 0; x < matrixData[0].length; x++) {
+            result[y][x] = Math.exp(matrixData[y][x] / constant) - 1;
+        }
+    }
+    return result;
+}
+
+/**
+ * Finds minimum element value from matrix
+ */
+function matrixMin(matrixData) {
+    var x, y,
+        min = 255;
+    for (y = 0; y < matrixData.length; y++) {
+        for (x = 0; x < matrixData[0].length; x++) {
+            if (matrixData[y][x] < min) {
+                min = matrixData[y][x];
+            }
+            if (min === 0) {
+                return min;
+            }
+        }
+    }
+    return min;
+}
+
+/**
+ * Finds minimum element value from matrix
+ */
+function matrixMax(matrixData) {
+    var x, y,
+        max = 0;
+    for (y = 0; y < matrixData.length; y++) {
+        for (x = 0; x < matrixData[0].length; x++) {
+            if (matrixData[y][x] > max) {
+                max = matrixData[y][x];
+            }
+            if (max === 255) {
+                return max;
+            }
+        }
+    }
+    return max;
+}
+
+/**
  * Calculate CDF values from histogram
- * @param histogramValues
- * @returns {Array}
  */
 function calcCDF(histogramValues) {
     var cdf = [];
@@ -188,8 +309,6 @@ function calcCDF(histogramValues) {
 
 /**
  * Calculate pixel values from CDF values
- * @param cdf
- * @returns {Array}
  */
 function calcValuesFromCDF(cdf) {
     var values = [],
@@ -203,8 +322,6 @@ function calcValuesFromCDF(cdf) {
 
 /**
  * Get min CDF value
- * @param cdf
- * @returns {*|number}
  */
 function getMinCDF(cdf) {
     var i = 0;
@@ -216,9 +333,6 @@ function getMinCDF(cdf) {
 
 /**
  * Draw histogram
- * @param $container
- * @param values
- * @param options
  */
 function plotHistogram($container, values, options) {
     var series = [];
@@ -232,8 +346,6 @@ function plotHistogram($container, values, options) {
 
 /**
  * Get grayscale image matrix
- * @param sourceCanvas
- * @returns {Array}
  */
 function getImageMatrix(sourceCanvas) {
     var sourceContext = sourceCanvas.getContext('2d'),
@@ -253,8 +365,6 @@ function getImageMatrix(sourceCanvas) {
 
 /**
  * Draw grayscale image data on canvas
- * @param matrixData
- * @param resultCanvas
  */
 function drawImageFromMatrix(matrixData, resultCanvas) {
     var width = matrixData[0].length,
@@ -282,11 +392,6 @@ function drawImageFromMatrix(matrixData, resultCanvas) {
 
 /**
  * Generate matrix with normally distributed random values
- * @param mean
- * @param variance
- * @param width
- * @param height
- * @returns {Array}
  */
 function normalRandomMatrix(mean, variance, width, height) {
     var x, y,
@@ -302,9 +407,6 @@ function normalRandomMatrix(mean, variance, width, height) {
 
 /**
  * Generate random value with normal distribution
- * @param mean
- * @param variance
- * @returns {number|*}
  */
 function normalRandom(mean, variance) {
     if (mean == undefined)
