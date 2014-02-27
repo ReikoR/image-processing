@@ -160,9 +160,6 @@ function imageSimpleCorrection(sourceCanvas, resultCanvas) {
         max = matrixMax(matrixData),
         scale = 255 / (max - min);
 
-    console.log('min', min);
-    console.log('max', max);
-
     if (min > 0) {
         //subtract min from matrix elements to move histogram to left
         matrixData = numeric.sub(matrixData, min);
@@ -172,9 +169,6 @@ function imageSimpleCorrection(sourceCanvas, resultCanvas) {
         //multiply matrix values by scale to stretch histogram to right
         matrixData = numeric.mul(matrixData, scale);
     }
-
-    console.log('newMin', matrixMin(matrixData));
-    console.log('newMax', matrixMax(matrixData));
 
     //scale matrix values back to [0, 255] and draw image
     drawImageFromMatrix(matrixData, resultCanvas);
