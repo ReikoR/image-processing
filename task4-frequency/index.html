@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>Frequency</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<html>
+<body>
+    <h1>Original image</h1>
+    <img id="source-image" class="image" src="img/moon-craters-256.png">
+
+    <h1>Noisy image</h1>
+    <img id="noise" class="image">
+    <form>
+        <label for="noise-amount">Noise amount</label>
+        <input id="noise-amount" type="range" min="0" max="1" value="0.1" step="0.01">
+        <label for="noise-intensity">Noise intensity</label>
+        <input id="noise-intensity" type="range" min="0" max="255" value="50" step="1">
+    </form>
+
+    <h1>Ideal low pass filter</h1>
+    <img id="output-image1-1" class="image">
+    <img id="output-image1-2" class="image">
+    <form>
+        <label for="radius-ilpf">ILPF radius</label>
+        <input id="radius-ilpf" type="range" min="0" max="200" value="30" step="1">
+    </form>
+
+    <h1>Ideal high pass filter</h1>
+    <img id="output-image2-1" class="image">
+    <img id="output-image2-2" class="image">
+    <form>
+        <label for="radius-ihpf">IHPF radius</label>
+        <input id="radius-ihpf" type="range" min="0" max="200" value="30" step="1">
+    </form>
+
+    <h1>Gaussian low pass filter</h1>
+    <img id="output-image3-1" class="image">
+    <img id="output-image3-2" class="image">
+    <form>
+        <label for="radius-glpf">GLPF radius</label>
+        <input id="radius-glpf" type="range" min="0" max="200" value="30" step="1">
+    </form>
+
+    <h1>Butterworth high pass filter</h1>
+    <img id="output-image4-1" class="image">
+    <img id="output-image4-2" class="image">
+    <form>
+        <label for="radius-bhpf">BHPF radius</label>
+        <input id="radius-bhpf" type="range" min="0" max="200" value="30" step="1">
+    </form>
+
+    <canvas id="source" width="100" height="100"></canvas>
+    <canvas id="source-with-noise" width="100" height="100"></canvas>
+    <canvas id="output" width="100" height="100"></canvas>
+    <canvas id="output2" width="100" height="100"></canvas>
+    <canvas id="output3" width="100" height="100"></canvas>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="../js/flot/jquery.flot.js"></script>
+    <script src="../js/numeric-1.2.6.js"></script>
+    <script src="../js/pixastic/pixastic.core.js"></script>
+    <script src="../js/pixastic/actions/histogram.js"></script>
+    <script src="../js/fft/fft.js"></script>
+    <script src="../js/fft/filter.js"></script>
+    <script src="../js/fft/spectrum.js"></script>
+    <script src="../js/pixastic/actions/histogram.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
