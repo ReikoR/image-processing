@@ -36,12 +36,12 @@ $(window).load(function () {
             $radiusBHPFsliderLabel = $('label[for="radius-bhpf"]'),
             $noiseAmountLabel = $('label[for="noise-amount"]'),
             $noiseIntensityLabel = $('label[for="noise-intensity"]'),
-            radiusILPF = 30,
-            radiusIHPF = 30,
-            radiusGLPF = 30,
-            radiusBHPF = 30,
-            noiseAmount = 0.5,
-            noiseIntensity = 50;
+            radiusILPF = 90,
+            radiusIHPF = 25,
+            radiusGLPF = 50,
+            radiusBHPF = 25,
+            noiseAmount = 0.1,
+            noiseIntensity = 100;
 
         var refreshNoise = function () {
             noise(canvas, canvasNoise, noiseAmount, noiseIntensity);
@@ -225,7 +225,7 @@ function idealFilter(re, im, radius, isHP) {
             pixelDistance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
 
             if (isHP && pixelDistance < radius || !isHP && pixelDistance > radius) {
-                re[rowIndex + x] = 1;
+                re[rowIndex + x] = 0;
                 im[rowIndex + x] = 0;
             }
         }
